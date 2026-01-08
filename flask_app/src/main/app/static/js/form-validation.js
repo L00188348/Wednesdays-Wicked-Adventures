@@ -1,14 +1,14 @@
+// ============================================
+// DOM Elements
+// ============================================
 document.addEventListener('DOMContentLoaded', function() {
-    // ============================================
-    // DOM Elements
-    // ============================================
     const togglePassword = document.getElementById('togglePassword');
     const passwordInput = document.getElementById('password');
     const eyeIcon = document.getElementById('eyeIcon');
     const loginForm = document.getElementById('loginForm');
     const contactForm = document.getElementById('contactForm');
     const loginButton = loginForm?.querySelector('.auth-submit-button');
-    
+
     // ============================================
     // SVG Icons Configuration
     // ============================================
@@ -34,18 +34,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Constants
     // ============================================
     const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const REDIRECT_DELAY = 1500; // milliseconds
 
     // ============================================
-    // VALIDAÇÃO CONTACT US - NOVO!
+    // CONTACT FORM - Frontend Validation (UX Layer)
+    // Defense in Depth: This is the FIRST layer of validation
     // ============================================
     function initializeContactForm() {
         if (!contactForm) return;
         
-        // Adicionar evento de submit ao formulário de contato
+        // Add submit event listener for frontend validation
         contactForm.addEventListener('submit', handleContactSubmit);
         
-        // Adicionar listeners para limpar erros ao digitar
+        // Add input listeners to clear errors when user types
         const contactInputs = contactForm.querySelectorAll('input, textarea');
         contactInputs.forEach(input => {
             input.addEventListener('input', function() {
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const email = contactForm.querySelector('input[name="email"]')?.value.trim();
         const message = contactForm.querySelector('textarea[name="message"]')?.value.trim();
         
-        // Validação do nome
+        // Name validation
         if (!name || name.length < 2) {
             return {
                 isValid: false,
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
         
-        // Validação do email
+        // Email validation
         if (!email) {
             return {
                 isValid: false,
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
         
-        // Validação da mensagem
+        // Message validation
         if (!message || message.length < 10) {
             return {
                 isValid: false,
@@ -98,35 +98,27 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function handleContactSubmit(e) {
-        e.preventDefault();
-        
+        // FRONTEND VALIDATION LAYER - For instant user feedback
         const validation = validateContactForm();
         if (!validation.isValid) {
+            e.preventDefault(); // Prevent form submission
             showContactError(validation.field, validation.message);
             return;
         }
         
-        // Se passar na validação, enviar o formulário
+        // If frontend validation passes, show loading state
+        // The form will submit normally to backend for SECOND validation layer
         showContactLoading();
         
-        // Simular envio (em produção, isso seria uma requisição AJAX ou o form envia normalmente)
-        setTimeout(() => {
-            hideContactLoading();
-            showContactSuccess();
-            
-            // Opcional: Limpar formulário após sucesso
-            setTimeout(() => {
-                contactForm.reset();
-            }, 2000);
-            
-        }, REDIRECT_DELAY);
+        // Note: Backend will perform additional security validation
+        // and return flash messages for success/error
     }
     
     function showContactError(field, message) {
-        // Remover erros anteriores
+        // Remove previous errors
         removeContactErrors();
         
-        // Criar elemento de erro
+        // Create error element
         const errorDiv = document.createElement('div');
         errorDiv.className = 'contact-error';
         errorDiv.innerHTML = `
@@ -136,29 +128,29 @@ document.addEventListener('DOMContentLoaded', function() {
             <span>${message}</span>
         `;
         
-        // Encontrar o campo correspondente
+        // Find corresponding field
         const fieldInput = contactForm.querySelector(`[name="${field}"]`);
         if (fieldInput) {
-            // Adicionar classe de erro ao campo
+            // Add error class to field
             fieldInput.classList.add('error');
             
-            // Inserir mensagem de erro após o campo
+            // Insert error message after the field
             fieldInput.parentNode.insertBefore(errorDiv, fieldInput.nextSibling);
             
-            // Focar no campo com erro
+            // Focus on field with error
             fieldInput.focus();
         } else {
-            // Se não encontrar campo específico, mostrar no topo
+            // If field not found, show at top
             contactForm.insertBefore(errorDiv, contactForm.firstChild);
         }
     }
     
     function removeContactErrors(specificField = null) {
-        // Remover todas as mensagens de erro
+        // Remove all error messages
         const errors = contactForm.querySelectorAll('.contact-error');
         errors.forEach(error => error.remove());
         
-        // Remover classe de erro dos inputs
+        // Remove error class from inputs
         if (specificField) {
             specificField.classList.remove('error');
         } else {
@@ -171,12 +163,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const submitButton = contactForm.querySelector('.cta-button.cta-send');
         if (!submitButton) return;
         
-        // Salvar texto original
+        // Save original text
         if (!submitButton.dataset.originalText) {
             submitButton.dataset.originalText = submitButton.innerHTML;
         }
         
-        // Mostrar loading
+        // Show loading state
         submitButton.disabled = true;
         submitButton.innerHTML = `
             <span class="loading-spinner">
@@ -188,50 +180,9 @@ document.addEventListener('DOMContentLoaded', function() {
             Sending...
         `;
     }
-    
-    function hideContactLoading() {
-        const submitButton = contactForm.querySelector('.cta-button.cta-send');
-        if (!submitButton || !submitButton.dataset.originalText) return;
-        
-        // Restaurar botão original
-        submitButton.disabled = false;
-        submitButton.innerHTML = submitButton.dataset.originalText;
-    }
-    
-    function showContactSuccess() {
-        // Remover erros existentes
-        removeContactErrors();
-        
-        // Mostrar mensagem de sucesso
-        const successDiv = document.createElement('div');
-        successDiv.className = 'contact-success';
-        successDiv.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                ${svgIcons.successIcon}
-            </svg>
-            <span>Message sent successfully! We'll get back to you soon.</span>
-        `;
-        
-        // Inserir antes do formulário
-        const flashMessages = contactForm.querySelector('.flash-messages');
-        if (flashMessages) {
-            flashMessages.appendChild(successDiv);
-        } else {
-            // Se não houver flash messages container, criar um
-            const flashContainer = document.createElement('div');
-            flashContainer.className = 'flash-messages success';
-            flashContainer.appendChild(successDiv);
-            contactForm.insertBefore(flashContainer, contactForm.firstChild);
-        }
-        
-        // Remover após 5 segundos
-        setTimeout(() => {
-            successDiv.remove();
-        }, 5000);
-    }
 
     // ============================================
-    // Password Toggle Functionality (mantido)
+    // LOGIN FORM - Frontend Validation
     // ============================================
     function initializePasswordToggle() {
         if (!togglePassword || !passwordInput || !eyeIcon) return;
@@ -248,9 +199,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ============================================
-    // Form Validation Functions (login)
-    // ============================================
     function validateEmail(email) {
         if (!email) {
             return { isValid: false, message: 'Please fill in all fields.' };
@@ -285,9 +233,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return { isValid: true };
     }
 
-    // ============================================
-    // UI Helper Functions (login)
-    // ============================================
     function showLoadingState() {
         if (!loginButton) return;
         
@@ -301,13 +246,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </span>
             Signing in...
         `;
-    }
-
-    function resetLoadingState() {
-        if (!loginButton) return;
-        
-        loginButton.disabled = false;
-        loginButton.textContent = 'Sign In';
     }
 
     function showError(message) {
@@ -342,9 +280,6 @@ document.addEventListener('DOMContentLoaded', function() {
         existingErrors.forEach(error => error.remove());
     }
 
-    // ============================================
-    // Form Submission Handler (login)
-    // ============================================
     function handleFormSubmit(e) {
         e.preventDefault();
         
@@ -362,33 +297,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show loading state
         showLoadingState();
         
-        // Simulate API call (replace with actual API call)
-        simulateLoginRequest(email, password);
-    }
-
-    // ============================================
-    // API Simulation (login)
-    // ============================================
-    function simulateLoginRequest(email, password) {
-        console.log('Login attempt:', { email, password });
+        // IMPORTANT: For production, remove simulation and let form submit
+        // Currently this prevents actual submission - adjust based on backend setup
         
-        // Simulate network delay
+        // For now, simulate submission (remove in production)
         setTimeout(() => {
-            // In production, replace with actual API call
-            // For demo purposes, simulate successful login
-            handleLoginSuccess();
+            // In production: Allow form to submit to backend
+            // loginForm.submit(); // Uncomment for actual submission
             
-            // Reset button state (in case redirect fails)
-            resetLoadingState();
-        }, REDIRECT_DELAY);
-    }
-
-    function handleLoginSuccess() {
-        // In production, this would redirect to dashboard
-        // window.location.href = '/dashboard';
-        
-        // For now, just log success
-        console.log('Login successful! Redirecting...');
+            // Reset button for demo purposes
+            loginButton.disabled = false;
+            loginButton.textContent = 'Sign In';
+        }, 1000);
     }
 
     // ============================================
@@ -442,10 +362,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initialize password toggle
         initializePasswordToggle();
         
-        // Initialize contact form validation
+        // Initialize contact form validation (FRONTEND LAYER)
         initializeContactForm();
         
-        // Setup form submission
+        // Setup login form submission
         if (loginForm) {
             loginForm.addEventListener('submit', handleFormSubmit);
         }

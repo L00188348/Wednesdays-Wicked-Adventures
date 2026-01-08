@@ -5,10 +5,10 @@ document.addEventListener('DOMContentLoaded', function() {
   
   if (!carousel || !prevBtn || !nextBtn) return;
   
-  // Desabilita o botão esquerda
+  // Disable left button
   prevBtn.disabled = true;
   
-  // Atualizar estado dos botões
+  // Update button states
   function updateButtons() {
     const isAtStart = carousel.scrollLeft <= 10;
     const isAtEnd = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 10;
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     nextBtn.disabled = isAtEnd;
   }
   
-  // Eventos de clique
+  // Click events
   prevBtn.addEventListener('click', () => {
     if (!prevBtn.disabled) {
       carousel.scrollBy({ left: -300, behavior: 'smooth' });
@@ -29,12 +29,12 @@ document.addEventListener('DOMContentLoaded', function() {
       carousel.scrollBy({ left: 300, behavior: 'smooth' });
     }
   });
-  
-  // Eventos
+
+  // Events to update button states
   carousel.addEventListener('scroll', updateButtons);
   window.addEventListener('resize', updateButtons);
   
-  // Estado inicial
+  // Initial state
   setTimeout(updateButtons, 100);
   setTimeout(updateButtons, 500);
 
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let currentIndex = 1;
   const totalImages = 4;
   
-  // Atualiza imagem principal
+  // Update main image
   function updateMainImage(index) {
     const thumb = document.querySelector(`.thumb-item[data-index="${index}"]`);
     if (!thumb) return;
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
     currentIndex = index;
   }
   
-  // Eventos para thumbnails
+  // Thumbnails
   thumbItems.forEach(thumb => {
     thumb.addEventListener('click', function() {
       const index = parseInt(this.dataset.index);
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
-  // Navegação com botões
+  // Buttons Navigation
   prevBtn.addEventListener('click', function() {
     if (currentIndex > 1) updateMainImage(currentIndex - 1);
   });
@@ -90,12 +90,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (currentIndex < totalImages) updateMainImage(currentIndex + 1);
   });
   
-  // Navegação com teclado
+  // Keyboard Navigation
   document.addEventListener('keydown', function(e) {
     if (e.key === 'ArrowLeft') prevBtn.click();
     if (e.key === 'ArrowRight') nextBtn.click();
   });
   
-  // Inicialização
+  // Initialization
   updateMainImage(1);
 });

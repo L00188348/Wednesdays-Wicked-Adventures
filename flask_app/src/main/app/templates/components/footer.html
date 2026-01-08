@@ -1,0 +1,29 @@
+{% include "components/contact-us.html" %}
+
+<footer class="footer">
+
+<nav class="navbar footer-navbar">
+    <!-- Left side: logo + text -->
+    <a href="{{ url_for('main.index') }}" class="navbar-brand">
+      <div class="logo-container">
+        <img src="{{ url_for('static', filename='images/Ghost01.svg') }}" alt="Logo" class="logo">
+      </div>
+      <span class="brand-text">Wednesday's Wicked Adventures</span>
+    </a>
+
+    <!-- Footer text on the right -->
+    <div class="footer-right">
+      <p class="footer-text">
+        A network of horror-themed amusement parks, combining premium quality, safety, and unforgettable scares.
+      </p>  
+    </div>
+  </nav>
+
+  <!-- Horizontal line with margins -->
+  <hr class="footer-line">
+
+  <!-- Copyright text -->
+  <div class="copyright">
+    © 2025 Wednesday's Wicked Adventures. All rights reserved.
+  </div>
+</footer>
